@@ -18,7 +18,7 @@ public class Shorten {
     private final RedisTemplateService redisTemplateService;
 
 
-    public Shorten(URLUtils utils, WebClient webClient, KafkaService kafkaService, RedisTemplateService redisTemplateService) {
+    public   Shorten(URLUtils utils, WebClient webClient, KafkaService kafkaService, RedisTemplateService redisTemplateService) {
         this.utils = utils;
         this.webClient = webClient;
         this.kafkaService = kafkaService;
@@ -27,20 +27,21 @@ public class Shorten {
 
     public ShortenResponseDto GiveEncodedUrl(String url) {
         try {
-            UniqueIDResponseDto response = webClient.get()
-                    .uri("/randomID")
-                    .retrieve()
-                    .bodyToMono(UniqueIDResponseDto.class).block();
-            assert response != null;
-            System.out.println(response.getRandomID());
-            if (response.getRandomID() == -1) {
-                return ShortenResponseDto.builder()
-                        .encodeurl("")
-                        .url(url)
-                        .status("FAILED")
-                        .build();
-            }
-            String res = utils.IDToURLGenerator(response.getRandomID());
+//            UniqueIDResponseDto response = webClient.get()
+//                    .uri("/randomID")
+//                    .retrieve()
+//                    .bodyToMono(UniqueIDResponseDto.class).block();
+//            assert response != null;
+//            System.out.println(response.getRandomID());
+//            if (response.getRandomID() == -1) {
+//                return ShortenResponseDto.builder()
+//                        .encodeurl("")
+//                        .url(url)
+//                        .status("FAILED")
+//                        .build();
+//            }
+            Integer response=1;
+            String res = utils.IDToURLGenerator(response);
 
 //            redisService.setValue(res, url);
             redisTemplateService.setValue(res,url);
@@ -66,7 +67,9 @@ public class Shorten {
                     .timestamp(Instant.now())
                     .ipv4("0.0.0.0")
                     .build());
-
+        }
+        else{
+            System.out.println(url);
         }
         return url;
     }
