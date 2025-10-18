@@ -10,7 +10,7 @@ import java.time.Instant;
 @Getter
 @Setter
 public class AnalyticMessage {
-    private String shortCode;
+    private String short_code;
     private String originalUrl;
     private Instant timestamp;
     private String ipv4;

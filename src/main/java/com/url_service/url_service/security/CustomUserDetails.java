@@ -15,6 +15,7 @@ public class CustomUserDetails implements UserDetails {
         this.email = email;
         this.password = password;
         this.authorities = authorities;
+
     }
 
     public Long getId() {

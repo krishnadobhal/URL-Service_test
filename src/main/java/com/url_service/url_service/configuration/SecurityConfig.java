@@ -23,7 +23,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // explicitly allow signup/login POSTs and keep general auth/url permit
                 .requestMatchers(HttpMethod.POST, "/auth/signup", "/auth/login").permitAll()
-                .requestMatchers("/auth/**", "/url/**").permitAll()
+                .requestMatchers("/auth/**").permitAll()
                 .anyRequest().authenticated()
             )
             .httpBasic(Customizer.withDefaults());
