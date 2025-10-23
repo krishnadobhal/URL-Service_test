@@ -16,9 +16,8 @@ public class UserService {
     }
 
     public User UpdateUsername(String username) {
-        Authentication isAuthenticated = AuthUtils.getAuthenticatedUser();
-        if (isAuthenticated!=null) {
-            CustomUserDetails userDetails = (CustomUserDetails) isAuthenticated.getPrincipal();
+        CustomUserDetails userDetails = AuthUtils.getAuthenticatedUser();
+        if (userDetails!=null) {
             Long userID = userDetails.getId();
             UserRepository.updateUsername(username,userID);
             return UserRepository.findById(userID).get();

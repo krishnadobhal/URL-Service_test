@@ -1,5 +1,6 @@
 package com.url_service.url_service.controllers;
 
+import com.url_service.url_service.dto.GetUrl;
 import com.url_service.url_service.service.Shorten;
 import com.url_service.url_service.security.CustomUserDetails;
 import com.url_service.url_service.utils.AuthUtils;
@@ -23,8 +24,9 @@ public class UrlController {
     }
 
     @PostMapping("/shorten")
-    public ResponseEntity<?> shortenUrl(@RequestBody String url) {
-        return new ResponseEntity<>(shorten.GiveEncodedUrl(url), HttpStatus.ACCEPTED);
+    public ResponseEntity<?> shortenUrl(@RequestBody GetUrl url) {
+        System.out.println(url.getOriginalUrl());
+        return new ResponseEntity<>(shorten.GiveEncodedUrl(url.getOriginalUrl()), HttpStatus.ACCEPTED);
     }
 
     @GetMapping("/{code}")
