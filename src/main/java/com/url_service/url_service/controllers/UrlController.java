@@ -1,15 +1,12 @@
 package com.url_service.url_service.controllers;
 
 import com.url_service.url_service.dto.GetUrl;
-import com.url_service.url_service.service.Shorten;
 import com.url_service.url_service.security.CustomUserDetails;
+import com.url_service.url_service.service.Shorten;
 import com.url_service.url_service.utils.AuthUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -44,8 +41,11 @@ public class UrlController {
     }
 
     @GetMapping("/whoami")
-    public String whoami(@AuthenticationPrincipal CustomUserDetails userDetails, HttpServletRequest request) {
+    public String whoami(HttpServletRequest request) {
         String ip = request.getRemoteAddr();
-        return "User: " + userDetails.getEmail() + " | ID: " + userDetails.getId() + " | IP: " + ip;
+        CustomUserDetails userDetails = AuthUtils.getAuthenticatedUser();
+        String email = userDetails != null ? userDetails.getEmail() : "anonymous";
+        String id = userDetails != null && userDetails.getId() != null ? String.valueOf(userDetails.getId()) : "-";
+        return "User: " + email + " | ID: " + id + " | IP: " + ip;
     }
 }

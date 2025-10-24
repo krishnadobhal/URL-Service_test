@@ -1,21 +1,22 @@
 package com.url_service.url_service.security;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
-public class CustomUserDetails implements UserDetails {
+/**
+ * Lightweight user details holder used across the application.
+ * This is intentionally a plain POJO so the project does not require Spring Security on the classpath.
+ */
+public class CustomUserDetails {
     private Long id;
     private String email;
     private String password;
-    private Collection<? extends GrantedAuthority> authorities;
+    private Collection<String> authorities;
 
-    public CustomUserDetails(Long id, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    public CustomUserDetails(Long id, String email, String password, Collection<String> authorities) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.authorities = authorities;
-
     }
 
     public Long getId() {
@@ -26,38 +27,16 @@ public class CustomUserDetails implements UserDetails {
         return email;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public Collection<String> getAuthorities() {
         return authorities;
     }
 
-    @Override
     public String getPassword() {
         return password;
     }
 
-    @Override
     public String getUsername() {
         return email;
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }

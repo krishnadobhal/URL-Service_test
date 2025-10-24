@@ -1,38 +1,22 @@
 package com.url_service.url_service.configuration;
 
+import com.url_service.url_service.filters.SimpleJwtFilter;
+import com.url_service.url_service.security.JwtUtil;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.config.http.SessionCreationPolicy;
 
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig {
 
+    // Register a simple servlet filter that only validates JWT signature and expiration
+    // The filter sets a request attribute "jwt.subject" when a valid token is present.
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                // explicitly allow signup/login POSTs and keep general auth/url permit
-                .requestMatchers(HttpMethod.POST, "/auth/signup", "/auth/login").permitAll()
-                .requestMatchers("/auth/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .httpBasic(Customizer.withDefaults());
-
-        return http.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public FilterRegistrationBean<SimpleJwtFilter> jwtFilterRegistration(JwtUtil jwtUtil) {
+        FilterRegistrationBean<SimpleJwtFilter> reg = new FilterRegistrationBean<>();
+        reg.setFilter(new SimpleJwtFilter(jwtUtil));
+        reg.addUrlPatterns("/*");
+        reg.setOrder(1);
+        return reg;
     }
 }
