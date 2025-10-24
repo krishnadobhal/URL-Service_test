@@ -7,12 +7,12 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 
 @Service
-public class URLCacheService {
-    private static final Logger log = LoggerFactory.getLogger(URLCacheService.class);
+public class CacheService {
+    private static final Logger log = LoggerFactory.getLogger(CacheService.class);
 
     private final RedisTemplateService redisTemplateService;
 
-    public URLCacheService(RedisTemplateService redisTemplateService) {
+    public CacheService(RedisTemplateService redisTemplateService) {
         this.redisTemplateService = redisTemplateService;
     }
 
@@ -30,5 +30,20 @@ public class URLCacheService {
             redisTemplateService.setValue(code, url);
         }
         return url;
+    }
+    @Cacheable(value = "user", key = "#code")
+    public String getUserFromCache(String code) {
+        System.out.println("CACHE MISS - getUserFromCache code=" + code);
+        log.debug("Cache MISS - executing getUserFromCache for code={}", code);
+        return redisTemplateService.getValue(code);
+    }
+
+    @CachePut(value = "user", key = "#code")
+    public String putUserInCache(String code, String user) {
+        log.debug("Putting value into cache and raw Redis for code={}", code);
+        if (user != null) {
+            redisTemplateService.setValue(code, user);
+        }
+        return user;
     }
 }

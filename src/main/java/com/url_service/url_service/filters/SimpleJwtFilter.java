@@ -24,6 +24,12 @@ public class SimpleJwtFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (request instanceof HttpServletRequest) {
             HttpServletRequest http = (HttpServletRequest) request;
+            // Skip JWT validation for endpoints that should be public (e.g. the shorten endpoint)
+            String requestUri = http.getRequestURI();
+            if (requestUri != null && requestUri.contains("/url/give")) {
+                chain.doFilter(request, response);
+                return;
+            }
             String header = http.getHeader("Authorization");
             if (header != null && header.toLowerCase().startsWith("bearer ")) {
                 String token = header.substring(7).trim();
