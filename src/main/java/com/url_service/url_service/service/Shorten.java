@@ -10,8 +10,6 @@ import com.url_service.url_service.repository.UserRepository;
 import com.url_service.url_service.security.CustomUserDetails;
 import com.url_service.url_service.utils.AuthUtils;
 import com.url_service.url_service.utils.URLUtils;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -67,7 +65,7 @@ public class Shorten {
             String code = utils.IDToURLGenerator(response.getRandomID());
 
             //fetch user details
-            Optional<User> user=userRepository.findById(userDetails.getId());
+            Optional<User> user=userRepository.findByEmail(userDetails.getEmail());
             if(user.isEmpty()){
                 return ShortenResponseDto.builder().url(url).encodeurl(code).status("Failed").build();
             }
@@ -76,7 +74,8 @@ public class Shorten {
             Url urlOBJ=Url.builder().originalUrl(url).shortCode(code).clickCount(0).user(user.get()).build();
             Url url1=urlRepository.save(urlOBJ);
 
-            redisTemplateService.setValue(code, url);
+            // populate both the raw Redis store and the Spring cache
+            urlCacheService.putUrlInCache(code, url);
 
             return ShortenResponseDto.builder().url(url).encodeurl(code).status("Success").build();
         } catch (Exception e) {
@@ -87,14 +86,16 @@ public class Shorten {
 
     public String GiveUrl(String code, String ip) {
         String url = urlCacheService.getUrlFromCache(code);
+        urlCacheService.putUrlInCache(code, url);
         CustomUserDetails userDetails = AuthUtils.getAuthenticatedUser();
         if (userDetails == null) {
             return "User not authenticated";
         }
-        Long id = userDetails.getId();
+        System.out.println("User authenticated "+ userDetails.getEmail());
+        String email = userDetails.getEmail();
         ZonedDateTime istTimestamp = Instant.now().atZone(ZoneId.of("Asia/Kolkata"));
-        if (userRepository.findById(id).isPresent()) {
-            User user = userRepository.findById(id).get();
+        if (userRepository.findByEmail(email).isPresent()) {
+            User user = userRepository.findByEmail(email).get();
             System.out.println(ip);
             if (url != null) {
 
@@ -110,7 +111,8 @@ public class Shorten {
                         .timestamp(istTimestamp.toInstant())
                         .ipv4(ip)
                         .build());
-                redisTemplateService.setValue(code, url);
+                // update both raw Redis and Spring cache (write-through)
+                urlCacheService.putUrlInCache(code, url);
             } else {
                 return "URL not found";
             }
