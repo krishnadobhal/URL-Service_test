@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/url")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UrlController {
     private final Shorten shorten;
 
